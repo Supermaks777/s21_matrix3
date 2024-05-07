@@ -11,15 +11,13 @@
  * @retval 2 - CALCULATION_ERROR.
  */
 int s21_mult_number(matrix_t *A, double number, matrix_t *result) {
-  status_code status = s21_check_matrix_dimmensions(A);
-  if (status == OK) status = s21_check_number(number);
-  if (status == OK) status = s21_create_matrix(A->rows, A->columns, result);
-  if (status == OK) {
+  int err_code = s21_check_matrix_dimmensions(A);
+  if (err_code == OK) err_code = s21_check_number(number);
+  if (err_code == OK) err_code = s21_create_matrix(A->rows, A->columns, result);
+  if (err_code == OK) {
     for (int i = 0; i < A->rows; i++) {
-      for (int j = 0; j < A->columns; j++) {
-        result->matrix[i][j] = A->matrix[i][j] * number;
-      }
+      for (int j = 0; j < A->columns; j++) result->matrix[i][j] = A->matrix[i][j] * number;
     }
   }
-  return status;
+  return err_code;
 }

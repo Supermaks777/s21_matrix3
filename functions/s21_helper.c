@@ -1,48 +1,31 @@
 #include "../s21_matrix.h"
-
-status_code s21_check_matrix_dimmensions(const matrix_t *A) {
-  if (A && A->rows > 0 && A->columns > 0) {
-    return OK;
-  } else {
-    return MATRIX_ERROR;
-  }
+// s21_check_matrix_dimmensions
+int s21_valid_size(const matrix_t *A) {
+  return (A && A->rows > 0 && A->columns > 0) ? OK : INCORRECT_MATRIX;
 }
 
-status_code s21_check_matrix_dimmension_equality(const matrix_t *A,
-                                                 const matrix_t *B) {
-  if ((A->columns == B->columns) && (B->rows == A->rows)) {
-    return OK;
-  } else {
-    return ARITHMETIC_ERROR;
-  }
+// s21_check_matrix_dimmension_equality
+int s21_eq_size(const matrix_t *A, const matrix_t *B) {
+  return ((A->columns == B->columns) && (B->rows == A->rows)) ? OK : CALCULATION_ERROR;
 }
 
-status_code s21_check_matrix_mutipliety(const matrix_t *A, const matrix_t *B) {
-  if (A->columns == B->rows) {
-    return OK;
-  } else {
-    return ARITHMETIC_ERROR;
-  }
+// s21_check_matrix_mutipliety
+int s21_mutipliety_size(const matrix_t *A, const matrix_t *B) {
+  return (A->columns == B->rows) ? OK : CALCULATION_ERROR;
 }
 
-status_code s21_check_matrix_squareness(const matrix_t *A) {
-  if (A->rows == A->columns) {
-    return OK;
-  } else {
-    return ARITHMETIC_ERROR;
-  }
+// s21_check_matrix_squareness
+int s21_squareness_size(const matrix_t *A) {
+  return (A->rows == A->columns) ? OK : CALCULATION_ERROR;
+}
+// s21_check_number
+int s21_valid_element(double number) {
+  return (isnan(number) || isinf(number)) ? CALCULATION_ERROR : OK;
 }
 
-status_code s21_check_number(double number) {
-  if (isnan(number) || isinf(number)) {
-    return ARITHMETIC_ERROR;
-  } else {
-    return OK;
-  }
-}
-
-status_code calculate_determinant(matrix_t *A, double *result) {
-  status_code status = OK;
+// calculate_determinant
+int calc_determinant(matrix_t *A, double *result) {
+  int status = OK;
   *result = 0;
   for (int j = 0; j < A->columns; j++) {
     matrix_t minor_matrix;
@@ -65,12 +48,12 @@ status_code calculate_determinant(matrix_t *A, double *result) {
   }
   return status;
 }
-
-status_code calculate_minor(matrix_t *orig, int dodge_row, int dodge_col,
+// calculate_minor
+int calc_minor(matrix_t *orig, int dodge_row, int dodge_col,
                             double *result) {
-  status_code status = OK;
+  int status = OK;
   if (orig->rows <= 1) {
-    return ARITHMETIC_ERROR;
+    return CALCULATION_ERROR;
   }
   matrix_t minor_matrix;
   status = s21_create_matrix(orig->rows - 1, orig->columns - 1, &minor_matrix);
@@ -88,13 +71,14 @@ status_code calculate_minor(matrix_t *orig, int dodge_row, int dodge_col,
     s21_remove_matrix(&minor_matrix);
   } else {
     *result = 0;
-    status = MATRIX_ERROR;
+    status = INCORRECT_MATRIX;
   }
   return status;
 }
 
-status_code fill_complements(matrix_t *A, matrix_t *result) {
-  status_code status = OK;
+// fill_complements
+int get_complements(matrix_t *A, matrix_t *result) {
+  int status = OK;
   for (int i = 0; i < A->rows; i++) {
     for (int j = 0; j < A->columns; j++) {
       double answer = 0;
@@ -108,9 +92,9 @@ status_code fill_complements(matrix_t *A, matrix_t *result) {
   return status;
 }
 
-status_code s21_prepare_complements_matrix(matrix_t *A,
-                                           matrix_t *complements_transposed) {
-  status_code status = MATRIX_ERROR;
+// s21_prepare_complements_matrix
+int get_complements_matrix(matrix_t *A, matrix_t *complements_transposed) {
+  int status = INCORRECT_MATRIX;
   matrix_t complements;
   if (s21_calc_complements(A, &complements) == OK) {
     if (s21_transpose(&complements, complements_transposed) == OK) {
@@ -121,12 +105,11 @@ status_code s21_prepare_complements_matrix(matrix_t *A,
   return status;
 }
 
-void s21_apply_inverse_formula(matrix_t *complements_transposed,
-                               double determinant, matrix_t *result) {
+// s21_apply_inverse_formula
+void get_inverse_matrix(matrix_t *complements_transposed, double determinant, matrix_t *result) {
   for (int i = 0; i < complements_transposed->rows; i++) {
     for (int j = 0; j < complements_transposed->columns; j++) {
-      result->matrix[i][j] =
-          (1.0 / determinant) * complements_transposed->matrix[i][j];
+      result->matrix[i][j] = (1.0 / determinant) * complements_transposed->matrix[i][j];
     }
   }
 }
